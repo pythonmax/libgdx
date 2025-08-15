@@ -428,9 +428,31 @@ public class AndroidGraphics extends AbstractGraphics implements Renderer {
 			running = false;
 			destroy = true;
 
+			view.queueEvent(new Runnable() {
+				@Override
+				public void run () {
+					if (!destroy) {
+						// pause event already picked up by onDrawFrame
+						return;
+					}
+
+					// it's ok to call ApplicationListener's events
+					// from onDrawFrame because it's executing in GL thread
+					onDrawFrame(null);
+				}
+			});
+
 			while (destroy) {
 				try {
-					synch.wait();
+					// Android ANR time is 5 seconds, so wait up to 4 seconds before assuming
+					// deadlock and killing process.
+					synch.wait(4000);
+					if (destroy) {
+						// destroy will never go false if onDrawFrame is never called by the GLThread
+						// when entering this method, we MUST enforce continuous rendering
+						Gdx.app.error(LOG_TAG, "waiting for destroy synchronization took too long; assuming deadlock and killing");
+						android.os.Process.killProcess(android.os.Process.myPid());
+					}
 				} catch (InterruptedException ex) {
 					Gdx.app.log(LOG_TAG, "waiting for destroy synchronization failed!");
 				}
