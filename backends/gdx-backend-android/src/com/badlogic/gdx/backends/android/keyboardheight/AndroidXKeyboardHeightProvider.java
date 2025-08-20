@@ -63,7 +63,10 @@ public class AndroidXKeyboardHeightProvider implements KeyboardHeightProvider {
 
 	@Override
 	public void close () {
-		ViewCompat.setOnApplyWindowInsetsListener(view, null);
+		// view can be null if close() called before start()
+		if (view != null) {
+			ViewCompat.setOnApplyWindowInsetsListener(view, null);
+		}
 	}
 
 	@Override
