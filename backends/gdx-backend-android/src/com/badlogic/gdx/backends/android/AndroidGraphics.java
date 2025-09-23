@@ -584,14 +584,17 @@ public class AndroidGraphics extends AbstractGraphics implements Renderer {
 		return fps;
 	}
 
-	public void clearManagedCaches () {
+	public static void clearManagedCaches (AndroidApplicationBase app) {
 		Mesh.clearAllMeshes(app);
 		Texture.clearAllTextures(app);
 		Cubemap.clearAllCubemaps(app);
 		TextureArray.clearAllTextureArrays(app);
 		ShaderProgram.clearAllShaderPrograms(app);
 		FrameBuffer.clearAllFrameBuffers(app);
+	}
 
+	public void clearManagedCaches () {
+		clearManagedCaches(app);
 		logManagedCachesStatus();
 	}
 
